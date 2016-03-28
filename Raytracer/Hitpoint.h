@@ -1,7 +1,7 @@
 #pragma once
 #include "GenVector.h"
 #include "Material.h"
-const float epsilon = 0.00011;
+const float epsilon = 0.0011f;
 class Hitpoint
 {
 public:

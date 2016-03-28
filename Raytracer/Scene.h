@@ -63,7 +63,7 @@ public:
 		{
 			obj_sphere *o = loader->sphereList[i];
 			Vector3 origin = objToGenVec(vertex(o->pos_index));
-			float radius = loader->normalList[o->up_normal_index]->e[1];
+			float radius = loader->normalList[o->up_normal_index]->e[0];
 			//,materials[o->material_index]
 			Sphere *s = new Sphere(origin, radius, materials[o->material_index]);
 			objects[i]=s;

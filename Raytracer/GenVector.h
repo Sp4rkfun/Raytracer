@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "objLoader.h"
-
+#include "windows.h"
 //enable the padding conversion function - slow
 //#define VECTOR_PADDING_CONVERSION
 
@@ -373,7 +373,9 @@ public:
 		float scale = this->dot(normal);
 		*this = *this - (normal * scale);
 	}
-
+	float maxComponentValue() {
+		return c[maxComponent()];
+	}
 	int maxComponent()
 	{
 		int largest = 0;
@@ -421,7 +423,9 @@ typedef GenVector<2> Vector2;
 typedef GenVector<3> Vector3;
 typedef GenVector<4> Vector4;
 typedef GenVector<3, unsigned char> Color;
-
+/*static float getMax(Vector3 &vec) {
+	return max( max(vec[0],vec[1]),vec[2]);
+}*/
 static Vector3 objToGenVec(double const *objVec)
 {
 	Vector3 v;
