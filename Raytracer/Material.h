@@ -17,7 +17,6 @@ Material::Material(obj_material *mtl):
 	Ka(objToGenVec(mtl->amb)),Kd(objToGenVec(mtl->diff)),Ks(objToGenVec(mtl->spec)),
 	reflect(mtl->reflect),shiny(mtl->shiny)
 {
-
 }
 
 Material::~Material()

@@ -66,10 +66,7 @@ Vector3 shadeLights(Hitpoint &hitpoint,vector<RenderPrimitive*> &points,vector<L
 			auto h = (v + l).normalize();
 
 			float distsq = (light.origin).distanceSquared(hitpoint.pt);
-			//Vector3 d = mat.Kd*light.Kd*max(0, n.dot(l));
 			vec += mat.Kd*light.Kd*max(0, n.dot(l)) + mat.Ks*light.Ks*pow(max(0, n.dot(h)), mat.shiny);vec+= mat.Kd*light.Kd*max(0, n.dot(l)) + mat.Ks*light.Ks*pow(max(0, n.dot(h)), mat.shiny);		
-			//+ points[index]->material->Ks*shadeLights();
-			//v += mat.Kd*I*max(0, n.dot(l));
 		}
 	}
 	return vec;
@@ -98,7 +95,7 @@ Vector3 mirror(Ray &origin, vector<RenderPrimitive*> &points, vector<Light*> lig
 			return c;//points[index]->material->Ks;
 		else {
 
-			return c + points[index]->material->Kd*mirror(Ray(hp.pt, origin.dir.reflect(hp.n)),points,lights,--reflections);
+			return c + points[index]->material->reflect*mirror(Ray(hp.pt, origin.dir.reflect(hp.n)),points,lights,--reflections);
 		}
 	}
 }
@@ -133,38 +130,9 @@ int main(int argc, char ** argv)
 		for (int x = 0; x < RES; ++x)
 		{
 			Ray r = generator.getRay(x, y);
-			/*float closest = FLT_MAX;
-			int index = -1;
-			//printf("%f\n",r.dir[2]);
-			Vector3 rt = r.getDirection();
-			bool intersected = false;
-			for (size_t i = 0; i < objects.size(); ++i)
-			{
-				float t = objects[i]->intersects(r);
-				if (t > -1) {
-					if (t < closest) {
-						index = i;
-						closest = t;
-					}
-					//r.dir[0] = 1; r.dir[1] = 1; r.dir[2] = 1;
-				}
-			}
-			//if (index > -1) {
-			//	rt = objects[index]->getNormal(r.origin + r.dir*closest);
-				Vector3 point = r.origin + closest*r.dir;
-				Material *mat = objects[index]->getMaterial();
-				Hitpoint hit(point, -r.dir, objects[index]->getNormal(point),mat);*/
 				Vector3 d = mirror(r,objects,lights,1);
 				Color c = Color(fabs(d[0]), fabs(d[1]), fabs(d[2]));
-				//d += mirror(Ray(hit.pt, r.dir.reflect(hit.n)),objects,lights,1);
 				buffer.at(x, RES - y - 1) = d;
-				//printf("%f\n", d[2]);
-			/*}
-			else {
-				Vector3 d; // rt;//*255.0f;
-				Color c = Color(fabs(d[0]), fabs(d[1]), fabs(d[2]));
-				buffer.at(x, RES - y - 1) = d;
-			}*/
 		}
 	});
 	float scaling = 0;
