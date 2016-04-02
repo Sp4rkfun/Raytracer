@@ -17,6 +17,20 @@ Triangle::Triangle(Vector3 &v1, Vector3 &v2, Vector3 &v3,Material *mat) :RenderP
 e1(v1 - v2), e2(v2 - v3), e3(v1 - v3),
 normal((e1).cross(e2).normalize())//(v3-v1
 {
+	minimum = v1;
+	maximum = v1;
+	for (size_t i = 0; i < 3; ++i)
+	{
+		float val = v2[i];
+		if (val < minimum[i]) minimum[i] = val;
+		else if (val > maximum[i]) maximum[i] = val;
+	}
+	for (size_t i = 0; i < 3; ++i)
+	{
+		float val = v3[i];
+		if (val < minimum[i]) minimum[i] = val;
+		else if (val > maximum[i]) maximum[i] = val;
+	}
 }
 
 Triangle::~Triangle()

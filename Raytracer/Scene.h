@@ -50,6 +50,13 @@ public:
 		}
 	}
 
+	void printVector(obj_vector *v)
+	{
+		printf("%.2f,", v->e[0]);
+		printf("%.2f,", v->e[1]);
+		printf("%.2f  ", v->e[2]);
+	}
+
 	void reloadObjects() {
 		int sz = objects.size();
 		for (int i = 0; i < sz; ++i)
@@ -62,6 +69,11 @@ public:
 		for (int i = 0; i<sz; ++i)
 		{
 			obj_sphere *o = loader->sphereList[i];
+			printf(" sphere ");
+			printVector(loader->vertexList[o->pos_index]);
+			printVector(loader->normalList[o->up_normal_index]);
+			printVector(loader->normalList[o->equator_normal_index]);
+			printf("\n");
 			Vector3 origin = objToGenVec(vertex(o->pos_index));
 			float radius = loader->normalList[o->up_normal_index]->e[0];
 			//,materials[o->material_index]

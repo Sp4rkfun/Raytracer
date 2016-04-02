@@ -22,6 +22,9 @@
     <Filter Include="Header Files\Objects">
       <UniqueIdentifier>{ada015c8-33d8-4643-aad5-539c3e55ec9f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Data">
+      <UniqueIdentifier>{7ea1aff4-9fe8-4da3-954d-f9513848eb5b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="RayTracer.cpp">
@@ -47,13 +50,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Buffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="simplePNG.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\objLoad\list.h">
@@ -80,9 +77,6 @@
     <ClInclude Include="Ray.h">
       <Filter>Header Files\primitives</Filter>
     </ClInclude>
-    <ClInclude Include="RenderPrimitive.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Sphere.h">
       <Filter>Header Files\Objects</Filter>
     </ClInclude>
@@ -103,6 +97,21 @@
     </ClInclude>
     <ClInclude Include="Hitpoint.h">
       <Filter>Header Files\primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="simplePNG.h">
+      <Filter>Header Files\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="Buffer.h">
+      <Filter>Header Files\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderPrimitive.h">
+      <Filter>Header Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="BVH.h">
+      <Filter>Header Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="BoundingBox.h">
+      <Filter>Header Files\Objects</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

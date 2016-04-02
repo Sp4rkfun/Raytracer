@@ -5,6 +5,8 @@ class RenderPrimitive
 {
 public:
 	Material *material;
+	Vector3 minimum;
+	Vector3 maximum;
 	RenderPrimitive(Material *mat);
 	virtual ~RenderPrimitive();
 	virtual float intersects(Ray &r) = 0;

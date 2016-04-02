@@ -7,9 +7,13 @@ public:
 	~Ray();
 	Vector3 origin;
 	Vector3 dir;
-	inline Vector3 &getDirection() {
-		return dir;
+	inline Vector3 &getDirection() const{
+		return (Vector3& const) dir;
 	}
+	inline Vector3 &getOrigin() const {
+		return (Vector3& const)dir;
+	}
+
 private:
 
 };

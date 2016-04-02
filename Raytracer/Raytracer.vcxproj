@@ -135,7 +135,9 @@
     <ClInclude Include="..\objLoad\obj_parser.h" />
     <ClInclude Include="..\objLoad\string_extra.h" />
     <ClInclude Include="AABB_intersect.h" />
+    <ClInclude Include="BoundingBox.h" />
     <ClInclude Include="Buffer.h" />
+    <ClInclude Include="BVH.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="GenVector.h" />
     <ClInclude Include="Hitpoint.h" />
