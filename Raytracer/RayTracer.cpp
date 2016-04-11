@@ -25,6 +25,7 @@
 #include "windows.h"
 #include "GenVector.h"
 #include "Hitpoint.h"
+#include "BoundingBox.h"
 
 using namespace std;
 using namespace concurrency;
@@ -50,7 +51,7 @@ bool isClosest(Hitpoint &point,vector<RenderPrimitive*> &points,Light &light) {
 	return true;
 }
 
-Vector3 shadeLights(Hitpoint &hitpoint,vector<RenderPrimitive*> &points,vector<Light*> &lights) {
+Vector3 shadeLights(Hitpoint &hitpoint,BoundingBox &box,vector<Light*> &lights) {
 	Vector3 vec;
 	int sz = lights.size();
 	for (size_t j = 0; j < sz; ++j)
@@ -58,7 +59,13 @@ Vector3 shadeLights(Hitpoint &hitpoint,vector<RenderPrimitive*> &points,vector<L
 		auto &light = *lights[j];
 		auto &mat = *hitpoint.mat;
 		vec += light.Ka*mat.Ka;
-		if (isClosest(hitpoint, points,light)) {
+		Ray r(hitpoint.pt, (light.origin - hitpoint.pt).normalize());
+		RenderPrimitive *hit = box.getIntersect(r);
+		if (hit != nullptr) {
+			float dist = hitpoint.pt.distance(light.origin);
+			float between = hit->intersects(r);
+			if (dist > between&&between > -1)continue;
+		}
 			auto &v = hitpoint.v;
 			auto &n = hitpoint.n;
 			auto l = (light.origin - hitpoint.pt).normalize();
@@ -67,16 +74,19 @@ Vector3 shadeLights(Hitpoint &hitpoint,vector<RenderPrimitive*> &points,vector<L
 
 			float distsq = (light.origin).distanceSquared(hitpoint.pt);
 			vec += mat.Kd*light.Kd*max(0, n.dot(l)) + mat.Ks*light.Ks*pow(max(0, n.dot(h)), mat.shiny);vec+= mat.Kd*light.Kd*max(0, n.dot(l)) + mat.Ks*light.Ks*pow(max(0, n.dot(h)), mat.shiny);		
-		}
 	}
 	return vec;
 }
 
-Vector3 mirror(Ray &origin, vector<RenderPrimitive*> &points, vector<Light*> lights,int reflections) {
+Vector3 mirror(Ray &origin, BoundingBox &box, vector<Light*> lights,int reflections) {
 
 	float closest = FLT_MAX;
 	int index = -1;
-	int sz = points.size();
+	RenderPrimitive *r =box.getIntersect(origin);
+	if (r == nullptr) return Vector3();
+	printf("found!");
+	float dist = r->intersects(origin);
+	/*int sz = points.size();
 	for (size_t i = 0; i < sz; ++i)
 	{
 		float dist = points[i]->intersects(origin);
@@ -84,18 +94,18 @@ Vector3 mirror(Ray &origin, vector<RenderPrimitive*> &points, vector<Light*> lig
 			closest = dist;
 			index = i;
 		}
-	}
-	if (index == -1) return Vector3();
+	}*/
+	if (dist == -1) return Vector3();
 	else 
 	{
 		Vector3 pt = origin.origin + origin.dir*closest;
-		Hitpoint hp(pt, -origin.dir, points[index]->getNormal(pt), points[index]->material);
-		Vector3 c = shadeLights(hp, points, lights);
+		Hitpoint hp(pt, -origin.dir, r->getNormal(pt), r->material);
+		Vector3 c = shadeLights(hp, box, lights);
 		if (reflections == 0)
 			return c;//points[index]->material->Ks;
 		else {
 
-			return c + points[index]->material->reflect*mirror(Ray(hp.pt, origin.dir.reflect(hp.n)),points,lights,--reflections);
+			return c + r->material->reflect*mirror(Ray(hp.pt, origin.dir.reflect(hp.n)),box,lights,--reflections);
 		}
 	}
 }
@@ -118,6 +128,7 @@ int main(int argc, char ** argv)
 	objData.load(argv[1]);
 	Scene s(&objData);
 	s.initialize();
+	BoundingBox *box = new BoundingBox(s.objects);
 	auto &camera = s.camera;
 	auto &objects = s.objects;
 	auto &lights = s.lights;
@@ -130,7 +141,7 @@ int main(int argc, char ** argv)
 		for (int x = 0; x < RES; ++x)
 		{
 			Ray r = generator.getRay(x, y);
-				Vector3 d = mirror(r,objects,lights,1);
+				Vector3 d = mirror(r,*box,lights,1);
 				Color c = Color(fabs(d[0]), fabs(d[1]), fabs(d[2]));
 				buffer.at(x, RES - y - 1) = d;
 		}

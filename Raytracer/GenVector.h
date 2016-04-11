@@ -442,3 +442,10 @@ static Vector3 objToGenVec(obj_vector const *objVec)
 	v[2] = objVec->e[2];
 	return v;
 }
+
+static void printVec3(Vector3 &v)
+{
+	printf("%.2f,", v[0]);
+	printf("%.2f,", v[1]);
+	printf("%.2f\n", v[2]);
+}
