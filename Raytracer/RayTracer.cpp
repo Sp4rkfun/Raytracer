@@ -128,7 +128,7 @@ int main(int argc, char ** argv)
 	objData.load(argv[1]);
 	Scene s(&objData);
 	s.initialize();
-	BoundingBox *box = new BoundingBox(s.objects);
+	BoundingBox *box = new BoundingBox(s.minSz,s.maxSz,s.objects);
 	auto &camera = s.camera;
 	auto &objects = s.objects;
 	auto &lights = s.lights;

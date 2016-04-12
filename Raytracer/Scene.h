@@ -23,6 +23,7 @@ public:
 	vector<Light*> lights;
 	vector<RenderPrimitive*> objects;
 	Camera camera;
+	Vector3 minSz, maxSz;
 	void reloadMaterials() {
 		int sz = materials.size();
 		for (int i = 0;i < sz;++i) {
@@ -79,6 +80,11 @@ public:
 			//,materials[o->material_index]
 			Sphere *s = new Sphere(origin, radius, materials[o->material_index]);
 			objects[i]=s;
+			for (size_t i = 0; i < 3; ++i)
+			{
+				minSz[i] = min(minSz[i], s->minimum[i]);
+				maxSz[i] = max(maxSz[i], s->maximum[i]);
+			}
 		}
 		sz += loader->faceCount;
 		for (int i = loader->sphereCount; i<sz; ++i)
@@ -91,6 +97,11 @@ public:
 				materials[o->material_index]
 				);
 			objects[i]=t;
+			for (size_t i = 0; i < 3; ++i)
+			{
+				minSz[i] = min(minSz[i], t->minimum[i]);
+				maxSz[i] = max(maxSz[i], t->maximum[i]);
+			}
 		}
 	}
 	void initialize() {

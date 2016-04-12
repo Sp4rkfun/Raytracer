@@ -11,7 +11,7 @@ public:
 	BoundingBox *left=nullptr, *right=nullptr;
 	Vector3 minimum, maximum;
 	BoundingBox(std::vector<RenderPrimitive*> points);
-	 BoundingBox(int l, int r, std::vector<RenderPrimitive*> points);
+	 BoundingBox(Vector3 minimum, Vector3 maximum, std::vector<RenderPrimitive*> points);
 	~BoundingBox();
 	virtual float intersect(Ray const & ray) const
 	{
@@ -73,33 +73,40 @@ BoundingBox::BoundingBox(std::vector<RenderPrimitive*> points) {
 		}
 		points[j + 1] = x;
 	}
-	BoundingBox(0, sz, points);
 }
- BoundingBox:: BoundingBox(int l,int r,std::vector<RenderPrimitive*> points)
+BoundingBox::BoundingBox(Vector3 minimum, Vector3 maximum, std::vector<RenderPrimitive*> points)
 {
-	printf("%d :: %d\n",l,r);
-	if (l +1 == r) {
-		printf("%d\n", l);
-		leaf = points[l];
-		minimum = leaf->minimum;
-		maximum = leaf->maximum;
-	}
+	int sz = points.size();
+	if (sz == 1) { leaf = points[0]; this->minimum = minimum; this->maximum = maximum; }
 	else {
-		int mid = (l + r) / 2;
-		left = new BoundingBox(l, mid,points);
-		right = new BoundingBox(mid, r,points);
-		minimum = left->minimum;
-		maximum = right->maximum;
-		printVec3(minimum);
-		printVec3(maximum);
-		for (int i = 1; i < 3; ++i)
+		Vector3 difference = maximum - minimum;
+		int axis = difference.maxComponent();
+		std::vector<RenderPrimitive*> lbox, rbox;
+		Vector3 lmin, lmax, rmin, rmax;
+
+		float mid = minimum[axis] + (difference[axis] / 2.0);
+		for (size_t i = 0; i < sz; i++)
 		{
-			minimum[i] = min(left->minimum[i], right->minimum[i]);
-			maximum[i] = max(left->maximum[i], right->maximum[i]);
-			float val = maximum[i];
+			RenderPrimitive *point = points[i];
+			if (point->minimum[axis] < mid) {
+				lbox.push_back(point);
+				for (size_t i = 0; i < 3; ++i)
+				{
+					lmin[i] = min(lmin[i], point->minimum[i]);
+					lmax[i] = max(lmax[i], point->maximum[i]);
+				}
+			}
+			else {
+				rbox.push_back(point);
+				for (size_t i = 0; i < 3; ++i)
+				{
+					rmin[i] = min(rmin[i], point->minimum[i]);
+					rmax[i] = max(rmax[i], point->maximum[i]);
+				}
+			}
 		}
-		printVec3(minimum);
-		printVec3(maximum);
+		if (lbox.size() > 0) left = new BoundingBox(lmin, lmax, lbox);
+		if (rbox.size() > 0) right = new BoundingBox(rmin, rmax, rbox);
 	}
 }
 
