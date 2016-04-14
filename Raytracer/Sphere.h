@@ -6,7 +6,7 @@ class Sphere : public RenderPrimitive
 public:
 	Sphere(Vector3 &origin, float radius, Material *mat);
 	~Sphere();
-	float intersects(Ray &r) override;
+	float intersects(const Ray &r) override;
 	Vector3 origin;
 	Vector3 getNormal(Vector3 &hit) override;
 private:
@@ -18,6 +18,7 @@ Sphere::Sphere(Vector3 &origin, float radius,Material *mat): RenderPrimitive(mat
 	Vector3 rad = Vector3(radius, radius, radius);
 	maximum = origin + rad;
 	minimum = origin - rad;
+	midpoint = origin;
 	//printf("%f %f %f", origin[0], origin[1], origin[2]);
 }
 
@@ -29,7 +30,7 @@ Vector3 Sphere::getNormal(Vector3 &hit) {
 	return (hit - origin).normalize();
 }
 
-float Sphere::intersects(Ray &r) {
+float Sphere::intersects(const Ray &r) {
 	Vector3 ec = (r.origin-origin);
 	float a = r.dir.dot(r.dir);
 	float b =  (2.0f*r.dir).dot(ec);

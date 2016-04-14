@@ -7,9 +7,10 @@ public:
 	Material *material;
 	Vector3 minimum;
 	Vector3 maximum;
+	Vector3 midpoint;
 	RenderPrimitive(Material *mat);
 	virtual ~RenderPrimitive();
-	virtual float intersects(Ray &r) = 0;
+	virtual float intersects(const Ray &r) = 0;
 	virtual Vector3 getNormal(Vector3 &hit) = 0;
 	Vector3 objToGenVec(obj_vector const * objVec)
 	{

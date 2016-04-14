@@ -65,6 +65,7 @@ Vector3 shadeLights(Hitpoint &hitpoint,BoundingBox &box,vector<Light*> &lights) 
 			float dist = hitpoint.pt.distance(light.origin);
 			float between = hit->intersects(r);
 			if (dist > between&&between > -1)continue;
+
 		}
 			auto &v = hitpoint.v;
 			auto &n = hitpoint.n;
@@ -84,7 +85,6 @@ Vector3 mirror(Ray &origin, BoundingBox &box, vector<Light*> lights,int reflecti
 	int index = -1;
 	RenderPrimitive *r =box.getIntersect(origin);
 	if (r == nullptr) return Vector3();
-	printf("found!");
 	float dist = r->intersects(origin);
 	/*int sz = points.size();
 	for (size_t i = 0; i < sz; ++i)

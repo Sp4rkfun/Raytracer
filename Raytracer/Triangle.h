@@ -6,7 +6,7 @@ class Triangle : public RenderPrimitive
 public:
 	Triangle(Vector3 &v1, Vector3 &v2, Vector3 &v3, Material *mat);
 	~Triangle();
-	float intersects(Ray &r) override;
+	float intersects(const Ray &r) override;
 	Vector3 getNormal(Vector3 &hit) override;
 	Vector3 p1,p2,p3,e1,e2,e3,normal;
 private:
@@ -31,6 +31,7 @@ normal((e1).cross(e2).normalize())//(v3-v1
 		if (val < minimum[i]) minimum[i] = val;
 		else if (val > maximum[i]) maximum[i] = val;
 	}
+	midpoint = minimum + (maximum - minimum)/2.0f;
 }
 
 Triangle::~Triangle()
@@ -41,7 +42,7 @@ Vector3 Triangle::getNormal(Vector3 &hit) {
 	return normal;
 }
 
-float Triangle::intersects(Ray &r) {
+float Triangle::intersects(const Ray &r) {
 	//if((v1))
 	float nDotdir = normal.dot(r.dir);
 	//if (nDotdir < 0.001)return -1;
