@@ -4,21 +4,38 @@
 #include "GenVector.h"
 #include "RenderPrimitive.h"
 #include "Hitpoint.h"
+struct Collision {
+	Collision():dist(-1.0f){}
+	Collision(float dist, RenderPrimitive *obj):dist(dist),obj(obj){}
+	float dist;
+	RenderPrimitive *obj;
+};
+
 class  BoundingBox
 {
 public:
 	RenderPrimitive *leaf=nullptr;
 	BoundingBox *left=nullptr, *right=nullptr;
-	Vector3 minimum, maximum;
-	BoundingBox(std::vector<RenderPrimitive*> points);
+	Vector3 minimum, maximum,invDir;
 	 BoundingBox(Vector3 minimum, Vector3 maximum, std::vector<RenderPrimitive*> points);
 	~BoundingBox();
-	virtual float intersect(Ray const & ray) const
-	{
-		const Vector3 &dir = ray.dir;
-		const Vector3 &orig = ray.origin;
-		Vector3 invDir(1.0f / dir[0], 1.0f / dir[1], 1.0f / dir[2]);
+	void setInverse(const Vector3 &dir) {
+		for (int i = 0; i < 3; ++i)
+		{
+			invDir[i] = 1.0f/dir[i];
+		}
+	}
 
+	float intersect(Ray const & ray, const Vector3 &invDir)
+	{
+	//	const Vector3 &dir = ray.dir;
+		const Vector3 &orig = ray.origin;
+		//setInverse(dir);
+
+		/*invDir[0] = 1.0f / dir[0];
+		invDir[1] = 1.0f / dir[1];
+		invDir[2] = 1.0f / dir[2];*/
+		//Vector3 invDir(1.0f / dir[0], 1.0f / dir[1], 1.0f / dir[2]);
 
 		float x1 = (minimum[0] - orig[0])*invDir[0];
 		float x2 = (maximum[0] - orig[0])*invDir[0];
@@ -36,33 +53,35 @@ public:
 		else return tmax;
 
 	}
-	RenderPrimitive *getIntersect(Ray const & ray) {
-		return recurIntersect(ray,intersect(ray));
+	Collision *getIntersect(Ray const & ray) {
+		//setInverse(ray.dir);
+		const Vector3 &dir = ray.dir;
+		Vector3 invDir(1.0f / dir[0], 1.0f / dir[1], 1.0f / dir[2]);
+		return recurIntersect(ray,intersect(ray,invDir),invDir);
 	}
-	RenderPrimitive *recurIntersect(Ray const &ray,float dist) {
+	Collision *recurIntersect(Ray const &ray,float dist,const Vector3 &invDir) {
 		if (dist > -1) {
-			//printf("recursing\n");
 			if (leaf != nullptr) {
-				if(leaf->intersects(ray)>-1)
-				return leaf;
+				dist = leaf->intersects(ray);
+				if (dist > -1) {
+					return new Collision(dist, leaf);
+				}
 				else return nullptr;
 			}
-			float ld = left->intersect(ray);
-			float rd = right->intersect(ray);
-			if (ld == -1)return right->recurIntersect(ray, rd);
-			else if (rd == -1)return left->recurIntersect(ray, ld);
+			float ld = left->intersect(ray,invDir);
+			float rd = right->intersect(ray,invDir);
+			if (ld == -1)return right->recurIntersect(ray, rd,invDir);
+			else if (rd == -1)return left->recurIntersect(ray, ld,invDir);
 			else if (ld == -1 && rd == -1)return nullptr;
 			else {
-				RenderPrimitive *l = left->recurIntersect(ray, ld);
-				RenderPrimitive *r = right->recurIntersect(ray, rd);
+				Collision *l = left->recurIntersect(ray, ld,invDir);
+				Collision *r = right->recurIntersect(ray, rd,invDir);
 				if (l == nullptr)return r;
 				else if (r == nullptr)return l;
-				ld = l->intersects(ray);
-				rd = r->intersects(ray);
 				/*if (ld == -1 && rd == -1)return nullptr;
 				else if (ld == -1)return r;
 				else if (rd == -1)return l;*/
-				if (ld < rd)return l;
+				if (l->dist < r->dist)return l;
 				else return r;
 			}
 		}
@@ -72,25 +91,9 @@ public:
 private:
 
 };
-BoundingBox::BoundingBox(std::vector<RenderPrimitive*> points) {
-	int sz = points.size();
-	for (size_t i = 1; i < sz; ++i)
-	{
-		RenderPrimitive *x = points[i];
-		int j = i-1;
-		printf("%d :: %d\n", j + 1, sz);
-		while (j >= 0 && points[j]->maximum[0]>x->maximum[0])
-		{
-			printf("\t%d :: %d", j + 1, sz);
-			points[j + 1] = points[j];
-			--j;
-		}
-		points[j + 1] = x;
-	}
-}
+
 BoundingBox::BoundingBox(Vector3 minimum, Vector3 maximum, std::vector<RenderPrimitive*> points):minimum(minimum),maximum(maximum)
 {
-	//printf("%d\n",points.size());
 	int sz = points.size();
 	if (sz == 1) { leaf = points[0];}
 	else {

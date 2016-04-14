@@ -60,12 +60,11 @@ Vector3 shadeLights(Hitpoint &hitpoint,BoundingBox &box,vector<Light*> &lights) 
 		auto &mat = *hitpoint.mat;
 		vec += light.Ka*mat.Ka;
 		Ray r(hitpoint.pt, (light.origin - hitpoint.pt).normalize());
-		RenderPrimitive *hit = box.getIntersect(r);
+		Collision *hit = box.getIntersect(r);
 		if (hit != nullptr) {
 			float dist = hitpoint.pt.distance(light.origin);
-			float between = hit->intersects(r);
+			float between = hit->dist;
 			if (dist > between&&between > -1)continue;
-
 		}
 			auto &v = hitpoint.v;
 			auto &n = hitpoint.n;
@@ -75,30 +74,23 @@ Vector3 shadeLights(Hitpoint &hitpoint,BoundingBox &box,vector<Light*> &lights) 
 
 			float distsq = (light.origin).distanceSquared(hitpoint.pt);
 			vec += mat.Kd*light.Kd*max(0, n.dot(l)) + mat.Ks*light.Ks*pow(max(0, n.dot(h)), mat.shiny);vec+= mat.Kd*light.Kd*max(0, n.dot(l)) + mat.Ks*light.Ks*pow(max(0, n.dot(h)), mat.shiny);		
+		
 	}
 	return vec;
 }
 
 Vector3 mirror(Ray &origin, BoundingBox &box, vector<Light*> lights,int reflections) {
 
-	float closest = FLT_MAX;
 	int index = -1;
-	RenderPrimitive *r =box.getIntersect(origin);
-	if (r == nullptr) return Vector3();
-	float dist = r->intersects(origin);
-	/*int sz = points.size();
-	for (size_t i = 0; i < sz; ++i)
-	{
-		float dist = points[i]->intersects(origin);
-		if (dist>-1 && dist<closest) {
-			closest = dist;
-			index = i;
-		}
-	}*/
+	Collision *c =box.getIntersect(origin);
+	if (c == nullptr) return Vector3();
+	float dist = c->dist;
+
 	if (dist == -1) return Vector3();
 	else 
 	{
-		Vector3 pt = origin.origin + origin.dir*closest;
+		RenderPrimitive *r = c->obj;
+		Vector3 pt = origin.origin + origin.dir*dist;
 		Hitpoint hp(pt, -origin.dir, r->getNormal(pt), r->material);
 		Vector3 c = shadeLights(hp, box, lights);
 		if (reflections == 0)
