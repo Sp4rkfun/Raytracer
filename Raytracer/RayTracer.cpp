@@ -20,15 +20,14 @@
 #include "Camera.h"
 #include <vector>
 #include <memory>
-#include "ppl.h"
+//#include "ppl.h"
 #include "Scene.h"
-#include "windows.h"
 #include "GenVector.h"
 #include "Hitpoint.h"
 #include "BoundingBox.h"
 
 using namespace std;
-using namespace concurrency;
+//using namespace concurrency;
 
 //This might be helpful to convert from obj vectors to GenVectors
 
@@ -37,18 +36,6 @@ void printVector(obj_vector *v)
 	printf("%.2f,", v->e[0]);
 	printf("%.2f,", v->e[1]);
 	printf("%.2f  ", v->e[2]);
-}
-
-bool isClosest(Hitpoint &point,vector<RenderPrimitive*> &points,Light &light) {
-	float dist = point.pt.distance(light.origin);
-	Ray r(point.pt, (light.origin - point.pt).normalize());
-	int sz = points.size();
-	for (size_t i = 0; i < sz; ++i)
-	{
-		float between = points[i]->intersects(r);
-		if (between>-1&&dist>between)return false;
-	}
-	return true;
 }
 
 Vector3 shadeLights(Hitpoint &hitpoint,BoundingBox &box,vector<Light*> &lights) {
@@ -73,7 +60,7 @@ Vector3 shadeLights(Hitpoint &hitpoint,BoundingBox &box,vector<Light*> &lights) 
 			auto h = (v + l).normalize();
 
 			float distsq = (light.origin).distanceSquared(hitpoint.pt);
-			vec += mat.Kd*light.Kd*max(0, n.dot(l)) + mat.Ks*light.Ks*pow(max(0, n.dot(h)), mat.shiny);vec+= mat.Kd*light.Kd*max(0, n.dot(l)) + mat.Ks*light.Ks*pow(max(0, n.dot(h)), mat.shiny);		
+			vec += mat.Kd*light.Kd*max(0, n.dot(l)) + mat.Ks*light.Ks*pow(max(0, n.dot(h)), mat.shiny);
 		
 	}
 	return vec;
@@ -106,7 +93,6 @@ int main(int argc, char ** argv)
 {
 	//TODO: create a frame buffer for RESxRES
 
-
 	//Need at least two arguments (obj input and png output)
 	if (argc < 3)
 	{
@@ -127,8 +113,9 @@ int main(int argc, char ** argv)
 	RayGenerator generator = RayGenerator(camera, RES, RES);
 
 	//Convert vectors to RGB colors for testing results
-	clock_t start = clock();
-	parallel_for(size_t(0), size_t(RES), [&](size_t y)
+	//clock_t start = clock();
+	//parallel_for(size_t(0), size_t(RES), [&](size_t y)
+	for(size_t y = 0; y< RES; ++y)
 	{
 		for (int x = 0; x < RES; ++x)
 		{
@@ -137,7 +124,7 @@ int main(int argc, char ** argv)
 				Color c = Color(fabs(d[0]), fabs(d[1]), fabs(d[2]));
 				buffer.at(x, RES - y - 1) = d;
 		}
-	});
+	}//);
 	float scaling = 0;
 	for (size_t y = 0; y < RES; ++y)
 	{
@@ -149,7 +136,8 @@ int main(int argc, char ** argv)
 	scaling /= 255.0;
 	printf("Scaling %f\n", scaling);
 	Buffer<Color> colors(RES, RES);
-	parallel_for(size_t(0), size_t(RES), [&](size_t y)
+	for(size_t y = 0; y < RES; ++y)
+	//parallel_for(size_t(0), size_t(RES), [&](size_t y)
 	{
 		for (int x = 0; x < RES; ++x)
 		{
@@ -157,8 +145,8 @@ int main(int argc, char ** argv)
 			Color c = Color(fabs(d[0]), fabs(d[1]), fabs(d[2]));
 			colors.at(x, y)=c;
 		}
-	});
-	printf("Rendered in %d ms\n", (clock() - start));
+	}//);
+	//printf("Rendered in %d ms\n", (clock() - start));
 	//Write output buffer to file argv2
 	simplePNG_write(argv[2], colors.getWidth(), colors.getHeight(), (unsigned char*)&colors.at(0, 0));
 
